@@ -163,7 +163,7 @@ export class LinearSinglyLinkedList<T = any> implements LinkedList<T> {
             this.deleteFirst();
         } else {
             let targetNode = this.getNodeAt(index - 1);
-            deletedValue = targetNode.value;
+            deletedValue = targetNode.next!.value;
             this.deleteAfter(targetNode);
         }
         return deletedValue;
