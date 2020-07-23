@@ -23,7 +23,10 @@ export interface LinkedList<T = any> extends List<T> {
     size: number;
     nodes: Iterable<LinkedListNode<T>>;
     firstNode?: LinkedListNode<T>;
+    lastNode?: LinkedListNode<T>;
+    nodeIterator(): IterableIterator<LinkedListNode<T>>
     findNode(value: T): LinkedListNode<T> | undefined;
+    getNodeAt(index: number): LinkedListNode<T>;
     insertFirst(value: T): LinkedListNode<T>;
     insertFirst(newNode: LinkedListNode<T>): LinkedListNode<T>;
     insertAfter(node: LinkedListNode<T>, value: T): LinkedListNode<T>;
@@ -33,7 +36,6 @@ export interface LinkedList<T = any> extends List<T> {
 }
 
 export interface DoublyLinkedList<T = any> extends LinkedList<T> {
-    lastNode?: DoublyLinkedListNode<T>;
     findLastNode(value: T): DoublyLinkedListNode<T> | undefined;
     insertLast(value: T): DoublyLinkedListNode<T>;
     insertLast(newNode: DoublyLinkedListNode<T>): DoublyLinkedListNode<T>;

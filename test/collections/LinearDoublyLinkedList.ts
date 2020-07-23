@@ -1,7 +1,7 @@
 import { LinearDoublyLinkedList, LinearDoublyLinkedListNode } from "../../src/collections/LinearDoublyLinkedList";
-import { SinglyLinkedListTests } from "./SinglyLinkedList";
+import { LinkedListTests } from "./LinkedList";
 
-export class LinearDoublyLinkedListTests extends SinglyLinkedListTests<LinearDoublyLinkedList> {
+export class LinearDoublyLinkedListTests extends LinkedListTests<LinearDoublyLinkedList> {
     constructor() {
         let newInstance = (values?: Iterable<any>) => new LinearDoublyLinkedList(values);
         let newNode = (value: any) => new LinearDoublyLinkedListNode(value);
