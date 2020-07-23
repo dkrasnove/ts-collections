@@ -1,3 +1,4 @@
+import { given } from "../given";
 import { expect } from "chai";
 import "chai-iterator";
 import { List } from "../../src/collections/List";
@@ -12,153 +13,323 @@ export class ListTests<T extends List> extends CollectionTests<T> {
         super.use();
         describe("#insert()", () => {
             context("with a valid index", () => {
-                it("should insert the specified element at the specified position in this list", () => {
-                    let tests: { args: [number[], number, number], expected: number[] }[] = [
-                        { args: [[], 0, 1],     expected: [1] },
-                        { args: [[2], 0, 1],    expected: [1, 2] },
-                        { args: [[1], 1, 2],    expected: [1, 2] },
-                        { args: [[2, 3], 0, 1], expected: [1, 2, 3] },
-                        { args: [[1, 3], 1, 2], expected: [1, 2, 3] },
-                        { args: [[1, 2], 2, 3], expected: [1, 2, 3] },
-                    ];
-
-                    tests.forEach((test) => {
+                given([
+                    { sample: [],     index: 0, value: 1, expected: [1] },
+                    { sample: [2],    index: 0, value: 1, expected: [1, 2] },
+                    { sample: [1],    index: 1, value: 2, expected: [1, 2] },
+                    { sample: [2, 3], index: 0, value: 1, expected: [1, 2, 3] },
+                    { sample: [1, 3], index: 1, value: 2, expected: [1, 2, 3] },
+                    { sample: [1, 2], index: 2, value: 3, expected: [1, 2, 3] }
+                ], 
+                ({ sample, index, value, expected }) => {
+                    it(`should insert ${value} at pos ${index} in [${sample}] and return [${expected}]`, () => {
                         // Arange
-                        let list = this.newInstance(test.args[0]);
+                        let list = this.newInstance(sample);
                                 
                         // Act
-                        list.insert(test.args[1], test.args[2]);
-
+                        let returnedList = list.insert(index, value);
+    
                         // Assert
-                        expect(list).to.iterate.over(test.expected);
+                        expect(list).to.iterate.over(expected).and.equal(returnedList);
                     });
-                });
-                it ("should return the list", () => {
-                    // Arrange
-                    let list = this.newInstance([2, 3]);
-        
-                    // Act
-                    let returnedList = list.insert(0, 1);
-        
-                    // Assert
-                    expect(list).to.equal(returnedList);
                 });
             });
             context("with an index less than zero", () => {
-                it("should throw a RangeError", () => {
-                    expect(() => this.newInstance([1, 2, 3]).insert(-1, -Infinity)).to.throw(RangeError);
+                given([
+                    { sample: [],        index: -1, value: -Infinity },
+                    { sample: [1],       index: -1, value: -Infinity },
+                    { sample: [1, 2],    index: -1, value: -Infinity },
+                    { sample: [1, 2, 3], index: -1, value: -Infinity }
+                ], 
+                ({ sample, index, value }) => {
+                    it(`should throw a RangeError for pos ${index} of [${sample}]`, () => {
+                        expect(() => this.newInstance(sample).insert(index, value)).to.throw(RangeError);
+                    });
                 });
             });
             context("with an index greater than the size of the list", () => {
-                it("should throw a RangeError", () => {
-                    expect(() => this.newInstance([1, 2, 3]).insert(4, Infinity)).to.throw(RangeError);
+                given([
+                    { sample: [],        index: 1, value: Infinity },
+                    { sample: [1],       index: 2, value: Infinity },
+                    { sample: [1, 2],    index: 3, value: Infinity },
+                    { sample: [1, 2, 3], index: 4, value: Infinity }
+                ], 
+                ({ sample, index, value }) => {
+                    it(`should throw a RangeError for pos ${index} of [${sample}]`, () => {
+                        expect(() => this.newInstance(sample).insert(index, value)).to.throw(RangeError);
+                    });
                 });
-            })
+            });
         });
         describe("#insertEach()", () => {
             context("with a valid index", () => {
-                it("should insert the specified elements at the specified position in this list", () => {
-                    let tests: { args: [number[], number, number[]], expected: number[] }[] = [
-                        { args: [[4, 5, 6, 7, 8, 9], 0, [1, 2, 3]], expected: [1, 2, 3, 4, 5, 6, 7, 8, 9] },
-                        { args: [[1, 2, 3, 7, 8, 9], 3, [4, 5, 6]], expected: [1, 2, 3, 4, 5, 6, 7, 8, 9] },
-                        { args: [[1, 2, 3, 4, 5, 6], 6, [7, 8, 9]], expected: [1, 2, 3, 4, 5, 6, 7, 8, 9] },
-                    ];
-
-                    tests.forEach((test) => {
+                given([
+                    { sample: [4, 5, 6, 7, 8, 9], index: 0, values: [1, 2, 3], expected: [1, 2, 3, 4, 5, 6, 7, 8, 9] },
+                    { sample: [1, 2, 3, 7, 8, 9], index: 3, values: [4, 5, 6], expected: [1, 2, 3, 4, 5, 6, 7, 8, 9] },
+                    { sample: [1, 2, 3, 4, 5, 6], index: 6, values: [7, 8, 9], expected: [1, 2, 3, 4, 5, 6, 7, 8, 9] },
+                ], 
+                ({ sample, index, values, expected }) => { 
+                    it(`should insert [${values}] at pos ${index} in [${sample}] and return [${expected}]`, () => {
                         // Arrange
-                        let list = this.newInstance(test.args[0]);
+                        let list = this.newInstance(sample);
             
                         // Act
-                        list.insertEach(test.args[1], ...test.args[2]);
+                        let returnedList = list.insertEach(index, ...values);
             
                         // Assert
-                        expect(list).to.iterate.over(test.expected);
+                        expect(list).to.iterate.over(expected).and.equal(returnedList);
                     });
-                });
-                it ("should return the list", () => {
-                    // Arrange
-                    let list = this.newInstance([4, 5, 6]);
-        
-                    // Act
-                    let returnedList = list.insertEach(0, 1, 2, 3);
-        
-                    // Assert
-                    expect(list).to.equal(returnedList);
                 });
             });
             context("with an index less than zero", () => {
-                it("should throw a RangeError", () => {
-                    expect(() => this.newInstance([4, 5, 6]).insertEach(-1, [1, 2, 3])).to.throw(RangeError);
+                given([
+                    { sample: [],        index: -1, values: [-Infinity] },
+                    { sample: [1],       index: -1, values: [-Infinity] },
+                    { sample: [1, 2],    index: -1, values: [-Infinity] },
+                    { sample: [1, 2, 3], index: -1, values: [-Infinity] }
+                ],
+                ({ sample, index, values }) => {
+                    it(`should throw a RangeError for pos ${index} of [${sample}]`, () => {
+                        expect(() => this.newInstance(sample).insertEach(index, values)).to.throw(RangeError);
+                    });
                 });
             });
             context("with an index greater than the size of the list", () => {
-                it("should throw a RangeError", () => {
-                    expect(() => this.newInstance([4, 5, 6]).insertEach(4, [7, 8, 9])).to.throw(RangeError);
+                given([
+                    { sample: [],        index: 1, values: [Infinity] },
+                    { sample: [1],       index: 2, values: [Infinity] },
+                    { sample: [1, 2],    index: 3, values: [Infinity] },
+                    { sample: [1, 2, 3], index: 4, values: [Infinity] }
+                ],
+                ({ sample, index, values }) => {
+                    it(`should throw a RangeError for pos ${index} of [${sample}]`, () => {
+                        expect(() => this.newInstance(sample).insert(index, values)).to.throw(RangeError);
+                    });
                 });
-            })
+            });
         });
         describe("#set()", () => {
-            it("should replace the element at the specified position in the list with the specified element", () => {
-                let tests: { args: [number[], number, number], expected: number[] }[] = [
-                    { args: [[1], 0, 4],       expected: [4] },
-                    { args: [[1, 2], 0, 4],    expected: [4, 2] },
-                    { args: [[1, 2], 1, 4],    expected: [1, 4] },
-                    { args: [[1, 2, 3], 0, 4], expected: [4, 2, 3] },
-                    { args: [[1, 2, 3], 1, 4], expected: [1, 4, 3] },
-                    { args: [[1, 2, 3], 2, 4], expected: [1, 2, 4] },
-                ];
-
-                tests.forEach((test) => {
-                    // Arrange
-                    let list = this.newInstance(test.args[0]);
-                            
-                    // Act
-                    list.set(test.args[1], test.args[2]);
-
-                    // Assert
-                    expect(list).to.iterate.over(test.expected);
+            context("with a valid index", () => {
+                given([
+                    { sample: [1],       index: 0, value: 4, expected: [4] },
+                    { sample: [1, 2],    index: 1, value: 4, expected: [1, 4] },
+                    { sample: [1, 2, 3], index: 0, value: 4, expected: [4, 2, 3] },
+                    { sample: [1, 2, 3], index: 1, value: 4, expected: [1, 4, 3] },
+                    { sample: [1, 2, 3], index: 2, value: 4, expected: [1, 2, 4] },
+                ], 
+                ({ sample, index, value, expected }) => {
+                    it(`should replace the element at pos ${index} in [${sample}] with ${value} and return [${expected}]`, () => {
+                        // Arrange
+                        let list = this.newInstance(sample);
+    
+                        // Act
+                        let returnedList = list.set(index, value);
+    
+                        // Assert
+                        expect(list).to.iterate.over(expected).and.equal(returnedList);
+                    });
+                });
+            });
+            context("with an index less than zero", () => {
+                given([
+                    { sample: [],        index: -1, value: -Infinity },
+                    { sample: [1],       index: -1, value: -Infinity },
+                    { sample: [1, 2],    index: -1, value: -Infinity },
+                    { sample: [1, 2, 3], index: -1, value: -Infinity }
+                ],
+                ({ sample, index, value }) => {
+                    it(`should throw a RangeError for pos ${index} of [${sample}]`, () => {
+                        expect(() => this.newInstance(sample).set(index, value)).to.throw(RangeError);
+                    });
+                });
+            });
+            context("with an index greater than the size of the list", () => {
+                given([
+                    { sample: [],        index: 1, value: Infinity },
+                    { sample: [1],       index: 2, value: Infinity },
+                    { sample: [1, 2],    index: 3, value: Infinity },
+                    { sample: [1, 2, 3], index: 4, value: Infinity }
+                ],
+                ({ sample, index, value }) => {
+                    it(`should throw a RangeError for pos ${index} of [${sample}]`, () => {
+                        expect(() => this.newInstance(sample).set(index, value)).to.throw(RangeError);
+                    });
                 });
             });
         });
         describe("#get()", () => {
-            it("should return the element at the specified position in the list", () => {
-                [[1], [1, 2], [1, 2, 3]].forEach((sample) => {
-                    sample.forEach((value, index) => {
-                        expect(this.newInstance(sample).get(index)).to.equal(value);
+            context("with a valid index", () => {
+                given([
+                    { sample: [1],       index: 0, expected: 1 },
+                    { sample: [1, 2],    index: 0, expected: 1 },
+                    { sample: [1, 2],    index: 1, expected: 2 },
+                    { sample: [1, 2, 3], index: 0, expected: 1 },
+                    { sample: [1, 2, 3], index: 1, expected: 2 },
+                    { sample: [1, 2, 3], index: 2, expected: 3 },
+                ], 
+                ({ sample, index, expected }) => {
+                    it(`should retrieve the element at pos ${index} in [${sample}] and return ${expected}`, () => {
+                        expect(this.newInstance(sample).get(index)).to.equal(expected);
+                    });
+                });
+            });
+            context("with an index less than zero", () => {
+                given([
+                    { sample: [],        index: -1 },
+                    { sample: [1],       index: -1 },
+                    { sample: [1, 2],    index: -1 },
+                    { sample: [1, 2, 3], index: -1 }
+                ],
+                ({ sample, index }) => {
+                    it(`should throw a RangeError for pos ${index} of [${sample}]`, () => {
+                        expect(() => this.newInstance(sample).get(index)).to.throw(RangeError);
+                    });
+                });
+            });
+            context("with an index greater than the size of the list", () => {
+                given([
+                    { sample: [],        index: 1 },
+                    { sample: [1],       index: 2 },
+                    { sample: [1, 2],    index: 3 },
+                    { sample: [1, 2, 3], index: 4 }
+                ],
+                ({ sample, index }) => {
+                    it(`should throw a RangeError for pos ${index} of [${sample}]`, () => {
+                        expect(() => this.newInstance(sample).get(index)).to.throw(RangeError);
                     });
                 });
             });
         });
         describe("#indexOf()", () => {
-            it("should return the index of the first occurrence of the specified element in the list, or -1 if the list does not contain the element", () => {
-                expect(this.newInstance([1, 0, 1, 0, 1]).indexOf(1)).to.equal(0);
+            context("when the value is present", () => {
+                context("and there is only one occurrence", () => {
+                    given([
+                        { sample: [1],       value: 1, expected: 0 },
+                        { sample: [1, 2],    value: 1, expected: 0 },
+                        { sample: [1, 2],    value: 2, expected: 1 },
+                        { sample: [1, 2, 3], value: 1, expected: 0 },
+                        { sample: [1, 2, 3], value: 2, expected: 1 },
+                        { sample: [1, 2, 3], value: 3, expected: 2 }
+                    ], 
+                    ({ sample, value, expected }) => {
+                        it(`should return ${expected} for ${value} in [${sample}]`, () => {
+                            expect(this.newInstance(sample).indexOf(value)).to.equal(expected);
+                        });
+                    });
+                });
+                context("and there are multiple occurrences", () => {
+                    given([
+                        { sample: [2, 1, 2, 3], value: 2, expected: 0 }
+                    ], 
+                    ({ sample, value, expected }) => {
+                        it(`should return ${expected} for the first occurrence of ${value} in [${sample}]`, () => {
+                            expect(this.newInstance(sample).indexOf(value)).to.equal(expected);
+                        });
+                    });
+                });
+            });
+            context("when the value is not present", () => {
+                given([
+                    { sample: [1],       value: 2, expected: -1 },
+                    { sample: [1, 2],    value: 3, expected: -1 },
+                    { sample: [1, 2, 3], value: 4, expected: -1 }
+                ], 
+                ({ sample, value, expected }) => {
+                    it(`should return -1 for ${value} in [${sample}]`, () => {
+                        expect(this.newInstance(sample).indexOf(value)).to.equal(expected);
+                    });
+                });
             });
         });
         describe("#lastIndexOf", () => {
-            it("should return the index of the last occurrence of the specified element in the list, or -1 if the list does not contain the element", () => {
-                expect(this.newInstance([1, 0, 1, 0, 1]).lastIndexOf(1)).to.equal(4);
+            context("when the value is present", () => {
+                context("and there is only one occurrence", () => {
+                    given([
+                        { sample: [1],       value: 1, expected: 0 },
+                        { sample: [1, 2],    value: 1, expected: 0 },
+                        { sample: [1, 2],    value: 2, expected: 1 },
+                        { sample: [1, 2, 3], value: 1, expected: 0 },
+                        { sample: [1, 2, 3], value: 2, expected: 1 },
+                        { sample: [1, 2, 3], value: 3, expected: 2 }
+                    ], 
+                    ({ sample, value, expected }) => {
+                        it(`should return ${expected} for ${value} in [${sample}]`, () => {
+                            expect(this.newInstance(sample).lastIndexOf(value)).to.equal(expected);
+                        });
+                    });
+                });
+                context("and there are multiple occurrences", () => {
+                    given([
+                        { sample: [2, 1, 2, 3], value: 2, expected: 2 }
+                    ], 
+                    ({ sample, value, expected }) => {
+                        it(`should return ${expected} for the last occurrence of ${value} in [${sample}]`, () => {
+                            expect(this.newInstance(sample).lastIndexOf(value)).to.equal(expected);
+                        });
+                    });
+                });
+            });
+            context("when the value is not present", () => {
+                given([
+                    { sample: [1],       value: 2, expected: -1 },
+                    { sample: [1, 2],    value: 3, expected: -1 },
+                    { sample: [1, 2, 3], value: 4, expected: -1 }
+                ], 
+                ({ sample, value, expected }) => {
+                    it(`should return -1 for ${value} in [${sample}]`, () => {
+                        expect(this.newInstance(sample).lastIndexOf(value)).to.equal(expected);
+                    });
+                });
             });
         });
         describe("#deleteAt()", () => {
-            it("should remove the element at the specified position in this list", () => {
-                let tests: { args: [number[], number], expected: number[] }[] = [
-                    { args: [[1], 0],       expected: [] },
-                    { args: [[1, 2], 0],    expected: [2] },
-                    { args: [[1, 2], 1],    expected: [1] },
-                    { args: [[1, 2, 3], 0], expected: [2, 3] },
-                    { args: [[1, 2, 3], 1], expected: [1, 3] },
-                    { args: [[1, 2, 3], 2], expected: [1, 2] },
-                ];
+            context("with a valid index", () => {
+                given([
+                    { sample: [1],       index: 0, expected: [],     value: 1 },
+                    { sample: [1, 2],    index: 0, expected: [2],    value: 1 },
+                    { sample: [1, 2],    index: 1, expected: [1],    value: 2 },
+                    { sample: [1, 2, 3], index: 0, expected: [2, 3], value: 1 },
+                    { sample: [1, 2, 3], index: 1, expected: [1, 3], value: 2 },
+                    { sample: [1, 2, 3], index: 2, expected: [1, 2], value: 3 },
+                ], 
+                ({ sample, index, expected, value }) => {
+                    it(`should remove the element at pos ${index} in [${sample}] and return ${value}`, () => {
+                        // Arrange
+                        let list = this.newInstance(sample);
+                                
+                        // Act
+                        let deleted = list.deleteAt(index);
 
-                tests.forEach((test) => {
-                    // Arrange
-                    let list = this.newInstance(test.args[0]);
-                            
-                    // Act
-                    let deleted = list.deleteAt(test.args[1]);
-
-                    // Assert
-                    expect(list).to.iterate.over(test.expected);
+                        // Assert
+                        expect(list).to.iterate.over(expected);
+                        expect(deleted).to.equal(value);
+                    });
+                });
+            });
+            context("with an index less than zero", () => {
+                given([
+                    { sample: [],        index: -1 },
+                    { sample: [1],       index: -1 },
+                    { sample: [1, 2],    index: -1 },
+                    { sample: [1, 2, 3], index: -1 }
+                ],
+                ({ sample, index }) => {
+                    it(`should throw a RangeError for pos ${index} of [${sample}]`, () => {
+                        expect(() => this.newInstance(sample).deleteAt(index)).to.throw(RangeError);
+                    });
+                });
+            });
+            context("with an index greater than the size of the list", () => {
+                given([
+                    { sample: [],        index: 1 },
+                    { sample: [1],       index: 2 },
+                    { sample: [1, 2],    index: 3 },
+                    { sample: [1, 2, 3], index: 4 }
+                ],
+                ({ sample, index }) => {
+                    it(`should throw a RangeError for pos ${index} of [${sample}]`, () => {
+                        expect(() => this.newInstance(sample).deleteAt(index)).to.throw(RangeError);
+                    });
                 });
             });
         });
