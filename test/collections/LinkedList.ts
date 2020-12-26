@@ -1,6 +1,7 @@
 import { expect } from "chai";
 import "chai-iterator";
 import { LinkedList, LinkedListNode } from "../../src/collections/LinkedList";
+import { given } from "../given";
 import { ListTests } from "./List";
 
 export class LinkedListTests<T extends LinkedList> extends ListTests<T> {
@@ -72,9 +73,15 @@ export class LinkedListTests<T extends LinkedList> extends ListTests<T> {
             });
             
         });
-        describe.skip("#insertAfter()", () => {
+        describe("#insertAfter()", () => {
             it("should add the specified new node after the specified existing node in the list", () => {
-                
+                let list = this.newInstance();
+
+                let firstNode = list.insertFirst(1);
+                let secondNode = list.insertAfter(firstNode, 2);
+                let thirdNode = list.insertAfter(secondNode, 3);
+
+                expect(list).to.iterate.over([1, 2, 3]);
             });
         });
         describe("#deleteFirst()", () => {
@@ -90,9 +97,17 @@ export class LinkedListTests<T extends LinkedList> extends ListTests<T> {
                 expect(deleted).to.be.true;
             });
         });
-        describe.skip("deleteAfter()", () => {
+        describe("deleteAfter()", () => {
             it("should remove the node after the specified existing node in the list", () => {
-        
+                let list = this.newInstance();
+
+                let firstNode = list.insertFirst(1);
+                let secondNode = list.insertAfter(firstNode, 2);
+                let thirdNode = list.insertAfter(secondNode, 3);
+
+                list.deleteAfter(firstNode);
+
+                expect(list).to.iterate.over([1, 3]);
             });
         });
     }
