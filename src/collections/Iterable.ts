@@ -26,4 +26,10 @@ interface Iterable<T> {
     // clone(): Collection<T>;
     // equals(value: any): boolean;
     // compare(value: any): number;
+    // slice(start?: number, end?: number): T[];
+    // splice(start: number, length: number, ...values: T[]): T[];
+    // find(callbackFn: (value: T, key: keyof this, collection: this) => boolean, thisArg?: any): T;
+    // findLast(callbackFn: (value: T, key: keyof this, collection: this) => boolean, thisArg?: any): T;
+    // sort(compare?: (o1: T, o2: T) => number): T[];
+    // reverse(): T[];
 }
